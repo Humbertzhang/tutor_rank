@@ -52,10 +52,10 @@ class Teacher(db.Model):
     name = db.Column(db.String(164), index = True)
     school = db.Column(db.String(164), index = True)
     research_direction = db.Column(db.String(164), index = True)
-    
-    photo = db.Column(db.String(164))
+    score = db.Column(db.Float, default = 0)
+    photo = db.Column(db.String(164), default = "https://img.laonanren.com/Public/articleimage/20180331/thum_5abefef0746a7.jpg")
     sex = db.Column(db.String(32))
-    birth = db.Column(db.Date)
+    birth = db.Column(db.Integer)
     
     comments = db.relationship('Comment', backref = 'teacher', lazy='dynamic',cascade='all')
 
@@ -66,3 +66,6 @@ class Comment(db.Model):
     content = db.Column(db.Text, default = "")
     #backref teacher
     #backref author
+
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
