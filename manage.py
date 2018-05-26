@@ -26,6 +26,21 @@ def make_shell_context():
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
+@manager.command
+def register():
+    """register all schools"""
+    import os
+    import redis
+    import pi
+    r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    dir_list = os.listdir('../libs')
+    university_list = list()
+    
+    for each in dir_list:
+        if each.endsWith('.py'):
+            university_list.append(each.strip('.py'))
+
+    r.set('universities', pickle.dumps(university_list))
 
 @manager.command
 def test():
