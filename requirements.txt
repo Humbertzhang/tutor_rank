@@ -13,3 +13,5 @@ Flask-WTF==0.12
 Flask-WhooshAlchemy==0.56
 SQLAlchemy==1.1.4
 Werkzeug==0.11.11
+requests
+bs4

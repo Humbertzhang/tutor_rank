@@ -1,7 +1,18 @@
-from . import ccnu
+from . import ccnu, wust
 
-universities_list = ["华中师范大学"]
+
+universities_list = ["CCNU", "WUST"]
+
+universities_engname = {
+    "CCNU": "ccnu",
+    "WUST": "wust"
+}
 
 universities_auth = {
-    "华中师范大学": ccnu.Ccnu
+    "CCNU": ccnu.Ccnu,
+    "WUST": wust.Wust
+}
+
+universities_verify = {
+    "WUST": wust.Wust.verify
 }

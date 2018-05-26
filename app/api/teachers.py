@@ -6,15 +6,13 @@ import json
 from ..decorators import login_required
 
 # 添加老师
-@login_required
 @api.route("/teacher/", methods = ['POST'])
+@login_required
 def add_teacher():
     token = request.headers.get('Authorization', None)
-    decode_token = base64.b64decode(token_header)
-    g.current_user = User.verify_auth_token(decode_token)
-    u = User.query.filter_by(id = g.current_user).first()
-    u_school_name = u.school
-
+    g.current_user = User.verify_auth_token(token)
+    u_school_name = g.current_user.school
+    
     tname = request.get_json().get("teacher_name")
     tschool = u_school_name
     research_direction = request.get_json().get("research_direction")
@@ -33,7 +31,7 @@ def add_teacher():
 
     return jsonify({
             "created":new_teacher.id
-        })
+        }), 201
 
 
 # 评论老师
@@ -41,11 +39,10 @@ def add_teacher():
 @api.route("/teacher/<tid>/", methods = ['POST'])
 def comment_teacher(tid):
     token = request.headers.get('Authorization', None)
-    decode_token = base64.b64decode(token_header)
-    g.current_user = User.verify_auth_token(decode_token)
-    u = User.query.filter_by(id = g.current_user).first()
+    g.current_user = User.verify_auth_token(token)
+    u = g.current_user
     t = Teacher.query.filter_by(id = tid).first()
-    if u.school is not t.school:
+    if not u.school == t.school:
         return jsonify({
                 "msg":"school error"
             }), 403
@@ -59,33 +56,40 @@ def comment_teacher(tid):
                 teacher_id = teacher_id,
                 author_id = author_id
             )
-    
+    teacher_comments = Comment.query.filter_by(teacher_id=t.id).all()
     # 计算平均分 
-    comments_num = len(t.comments)
+    comments_num = len(teacher_comments)
+    if comments_num == 0:
+        comments_num+=1
     t.score = (t.score*(comments_num-1) + score) / comments_num
      
     db.session.add(new_comment)
     db.session.add(t)
     db.session.commit()
 
+    return jsonify({
+            "msg":"success"
+        }), 201
+
 
 # 获取某个学校老师列表
-@api.route("/teacher/<schoolname>/page/<page_num>/", methods = ['GET'])
+@api.route("/teacher/<schoolname>/page/<int:page_num>/", methods = ['GET'])
 def get_teacher_list(schoolname, page_num):
+    PAGE_SIZE = 6
     teachers = [ {
                     "tid":teacher.id,
                     "name":teacher.name,
                     "photo":teacher.photo,
                     "direction":teacher.research_direction,
                     "score":teacher.score
-                 } for teacher in Teacher.filter_by(school = schoolnaem).all()] 
-    allpages = len(teachers)/7
+                 } for teacher in Teacher.query.filter_by(school = schoolname).all()] 
+    allpages = int(len(teachers)/PAGE_SIZE) + 1
     
     ret_teachers = []
-    if page_num*7-1 < len(teachers):
-        ret_teachers = teachers[(page_num-1)*7: page_num*7]
+    if page_num*PAGE_SIZE-1 < len(teachers):
+        ret_teachers = teachers[(page_num-1)*PAGE_SIZE: page_num*PAGE_SIZE]
     else:
-        ret_teachers = teachers[(page_num-1)*7:]
+        ret_teachers = teachers[(page_num-1)*PAGE_SIZE:]
 
     return jsonify({
             "allpages":allpages,
@@ -94,11 +98,24 @@ def get_teacher_list(schoolname, page_num):
 
 
 # 获取有关老师评论
-@api.route("/teacher/<tid>/page/<page_num>/", methods = ['GET'])
+@api.route("/teacher/<int:tid>/info/page/<int:page_num>/", methods = ['GET'])
 def get_teacher(tid, page_num):
     teacher = Teacher.query.filter_by(id = tid).first()
-    comments = teacher.comments
-    allpages = len(comments)/5
+    t = {
+        "tid":teacher.id,
+        "name":teacher.name,
+        "photo":teacher.photo,
+        "direction":teacher.research_direction,
+        "score":teacher.score,
+        "sex":tacher.sex
+    }
+
+    comments = [{
+        "score": comment.score,
+        "content": comment.content
+        } for comment in Comment.query.filter_by(teacher_id = tid).all()]
+
+    allpages = int(len(comments)/5) + 1
     ret_comments = []
     if page_num * 5 -1 < len(comments):
         ret_comments = comments[(page_num-1)*5: page_num*5]
@@ -106,18 +123,6 @@ def get_teacher(tid, page_num):
         ret_comments = comments[(page_num-1)*5:]
     return jsonify({
             "allpages":allpages,
+            "teacher":t,
             "comments":ret_comments
         }),200
-
-
-
-
-
-
-
-
-
-
-
-
-
