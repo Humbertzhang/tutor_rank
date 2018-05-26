@@ -24,3 +24,18 @@ $ pip install -r requirements.txt
 ```sh
 $ virtualenv venv && source venv/bin/activate
 ```
+
+# 其他学校接入
+
+创建`tutor_rank/libs/****.py`, 提供函数
+
+```
+/**
+@param username {String} 用户名
+@param password {String} 密码
+@return {Boolean} 是否通过验证
+*/
+def UserVerify(username, password):
+    # Your code Here
+    return
+```
