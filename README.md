@@ -25,6 +25,20 @@ $ pip install -r requirements.txt
 $ virtualenv venv && source venv/bin/activate
 ```
 
+## Create Database
+
+```sh
+$ python3 manager.py db init
+$ python3 manager.py db migrate
+$ python3 manager.py db upgrade
+```
+
+## Register Universities
+
+```sh
+$ python3 manager.py register
+```
+
 # 其他学校接入
 
 创建`tutor_rank/libs/****.py`, 提供函数
