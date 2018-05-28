@@ -40,16 +40,22 @@ $ python3 manager.py register
 ```
 
 # 其他学校接入
-
-创建`tutor_rank/libs/****.py`, 提供函数
-
+创建 `/app/universities/universityname.py`
+编写一个类
+包括登录所需信息类型 schema
+模拟登录函数login
 ```
-/**
-@param username {String} 用户名
-@param password {String} 密码
-@return {Boolean} 是否通过验证
-*/
-def UserVerify(username, password):
-    # Your code Here
-    return
+class UniversityName():
+    schema = {
+		"username":"str",
+		"password":"password",
+		"verify": 0 or 1 // 表示是否需要验证码	
+	}
+	# return True if success 
+	# return False if failed
+	def login(request_body):
+		if success:
+			return True
+		else:
+			return False
 ```

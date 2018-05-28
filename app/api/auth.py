@@ -29,7 +29,8 @@ def pre_verify():
         if university_class.schema.get("verify") == 1:
             verify_func = universities_verify.get(uni)
             pic = verify_func(None)
-            session[request.remote_addr] = pic 
+            print("PRE:", request.remote_addr)
+            session[str(request.remote_addr)] = pic 
             return jsonify({"msg":"ok"})
        
 
@@ -37,7 +38,9 @@ def pre_verify():
 @api.route("/universities/verify/", methods = ['POST'])
 def get_verify_code():
     if request.method == 'POST':
-        pic = session[request.remote_addr]
+        print("AFTER:", request.remote_addr)
+        pic = session[str(request.remote_addr)]
+
         response = make_response(pic)
         response.headers.set('Content-Type', 'image/jpeg')
         return response
@@ -64,7 +67,7 @@ def login():
                 db.session.add(new_user)
                 db.session.commit()
                 user = User.query.filter_by(username=username).first()
-                token = str(user.generate_auth_token())
+                token = user.generate_auth_token().decode("utf-8") 
                 return jsonify({    
                                 'created': new_user.id,
                                 'token': token
@@ -76,7 +79,7 @@ def login():
 
         # login
         elif user.verify_password(password):
-                token = str(user.generate_auth_token())
+                token = user.generate_auth_token().decode("utf-8")
                 return jsonify({
                     "token": token
                 }), 200

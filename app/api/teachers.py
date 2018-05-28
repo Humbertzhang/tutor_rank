@@ -11,6 +11,7 @@ from ..decorators import login_required
 def add_teacher():
     token = request.headers.get('Authorization', None)
     g.current_user = User.verify_auth_token(token)
+    print(g.current_user.school)
     u_school_name = g.current_user.school
     
     tname = request.get_json().get("teacher_name")
@@ -59,9 +60,11 @@ def comment_teacher(tid):
     teacher_comments = Comment.query.filter_by(teacher_id=t.id).all()
     # 计算平均分 
     comments_num = len(teacher_comments)
-    if comments_num == 0:
-        comments_num+=1
-    t.score = (t.score*(comments_num-1) + score) / comments_num
+    if comments_num == 0.0:
+        comments_num += 1.0
+    print(comments_num)
+    print(score)
+    t.score = (t.score*(comments_num-1.0) + score) / comments_num
      
     db.session.add(new_comment)
     db.session.add(t)
@@ -107,7 +110,9 @@ def get_teacher(tid, page_num):
         "photo":teacher.photo,
         "direction":teacher.research_direction,
         "score":teacher.score,
-        "sex":tacher.sex
+        "sex":teacher.sex,
+        "birth":teacher.birth,
+        "school":teacher.school
     }
 
     comments = [{
